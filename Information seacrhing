@@ -1,0 +1,576 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <fstream>
+#include <cstdlib>
+#include <sstream>
+using namespace std;
+
+	class BASIC{
+	protected:
+		int year;
+		string name;
+		
+		public:
+		BASIC(){
+			 year=100;
+			 name="";			
+		}
+		
+		public:
+			void writeyear(int data){
+				year=data;
+			}
+			
+			int readyear(){
+				return year;
+			}
+			
+			void writename(string nam){
+				name=name.assign(nam);
+			}
+			
+			string readname(){
+				return name;
+			}
+	};
+	
+	
+	class MEMBER:public BASIC{
+		private:
+			string phone;
+			string home;
+			MEMBER *ptr;
+		
+		public:
+		MEMBER(){
+			 phone="";
+			 home="";
+			 ptr=NULL;			
+		}
+
+		public:
+			void writeptr(MEMBER *p){
+				ptr=p;
+			}
+			
+			MEMBER *readptr(){
+				return ptr;
+			}
+
+			void writephone(string phone1){
+				phone=phone.assign(phone1);
+			}
+			
+			string readphone(){
+				return phone;
+			}
+			
+			void writehome(string home1){
+				home=home.assign(home1);;
+			}
+			
+			string readhome(){
+				return home;
+			}
+	};
+	
+	
+int menu(int *b){
+
+	cout<<"student data fuction:\n";
+	cout<<"1 for insert\n";
+	cout<<"2 for search\n";
+	cout<<"3 for modify\n";
+	cout<<"4 for delete\n";
+	cout<<"5 for leave\n";
+	cin>>*b;
+	while(cin.fail())
+	{
+		cin.clear();
+		cin.sync();
+		cout<<"error input,input again:\n";
+		cin>>*b;
+	}
+}
+
+
+
+
+MEMBER* insert(MEMBER *head,string phone){
+	MEMBER *p,*q,*a;
+	int i=0,year;
+	string nam,home;
+
+	a=new MEMBER;
+	a->writephone(phone);
+	if(head==NULL)
+	{
+		cout<<"input name:\n";
+		getline(cin,nam);
+		while(cin.fail())
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			getline(cin,nam);
+		}
+		cout<<"input year:\n";
+		cin>>year;
+		while(cin.fail()||year<0)
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			cin>>year;
+		}
+		cout<<"input homephone:\n";
+		cin.get();
+		getline(cin,home);
+		while(cin.fail())
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			getline(cin,home);
+		}
+		a->writename(nam);
+		a->writeyear(year);
+		a->writephone(phone);
+		a->writehome(home);
+
+	}
+	else
+	{
+		p=head;
+		q=NULL;
+		cout<<"input name:\n";
+		getline(cin,nam);
+		while(cin.fail())
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			getline(cin,nam);
+		}
+		cout<<"input year:\n";
+		cin>>year;
+		while(cin.fail()||year<0)
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			cin>>year;
+		}
+		cout<<"input homephone:\n";
+		cin.get();
+		getline(cin,home);
+		while(cin.fail())
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			getline(cin,home);
+		}
+		a->writename(nam);
+		a->writeyear(year);
+		a->writephone(phone);
+		a->writehome(home);
+
+	}
+	
+	if(head==NULL){
+		a->writeptr(NULL);
+		head=a;		
+	}
+	else{
+		a->writeptr(head);
+		head=a;
+	}
+
+	return head;
+}
+
+
+
+
+
+MEMBER* insert(MEMBER *head,string nam,int year,string phone,string home){
+	MEMBER *p,*q,*a;
+	string com="";
+	a=new MEMBER;
+
+
+	if(head==NULL)
+	{
+
+		a->writename(nam);
+		a->writeyear(year);
+		a->writephone(phone);
+		a->writehome(home);
+		p=a;
+		head=p;
+		p->writeptr(NULL);
+	}
+	else
+	{
+		p=head;
+		q=NULL;
+		a->writename(nam);
+		a->writeyear(year);
+		a->writephone(phone);
+		a->writehome(home);
+		a->writeptr(head);
+		head=a;				
+	}
+
+
+
+	return head;
+}
+
+
+MEMBER *search(MEMBER *head,string phone,int a){
+	while(head!=NULL){
+		if(phone.compare(head->readphone())==0){
+			return head;				
+		}
+		head=head->readptr();
+	}
+	return NULL;
+}
+
+
+
+MEMBER *search(MEMBER *head,string name){
+	while(head!=NULL){
+		if(name.compare(head->readname())==0){
+			return head;
+		}
+	head=head->readptr();
+	}
+	return NULL;
+}
+
+
+
+void print(MEMBER *head){
+	int a=0,b=0,c=0;
+	MEMBER *k=head;
+	while(head!=NULL){
+		cout<<head->readname();
+		cout<<head->readyear();
+		cout<<head->readphone();
+		cout<<head->readhome();
+		head=head->readptr();
+	}
+
+}
+
+
+
+
+MEMBER *delete1(MEMBER *head,string phone){
+	MEMBER*q,*p,*k;
+	p=head;
+	q=NULL;
+while(p!=NULL && phone.compare(p->readphone())!=0){
+	q=p;
+	p=p->readptr();
+}
+if(p==NULL){
+	cout<<"not found\n";
+}
+else if(q==NULL){
+	p=p->readptr();
+	head=p;
+	cout<<"delete success\n";
+}
+else{
+	p=p->readptr();
+	q->writeptr(p);
+	cout<<"delete success\n";
+} 
+
+return head;
+}
+
+
+
+
+
+
+int main(){
+fstream file;
+file.open("data.txt",ios_base::in);	
+
+	MEMBER *q=NULL,*head1=NULL;
+	MEMBER *p,*k=head1;
+	int n,c=0,w=0,ser,del,type;
+	string name,phone,home;
+	MEMBER *a[50];
+	int year,count=0,test=0,cth=0;
+	stringstream ss;
+if(file.is_open()){
+	cout<<"open sucessed\n";		
+	while(file>>year){
+		file.get();
+		getline(file,name);
+		getline(file,phone);	
+		getline(file,home);	
+		head1=insert(head1,name,year,phone,home);
+	}
+
+}
+else{
+	cout<<"open failed\n";
+}		
+
+file.close();	
+while(1){
+
+	menu(&c);
+	if(c==1){
+		cout<<"input phone:\n";
+		cin.get();
+		getline(cin,phone);
+		while(cin.fail())
+		{
+			cin.clear();
+			cin.sync();
+			cout<<"error input,input again:\n";
+			getline(cin,phone);
+		}
+		k=search(head1,phone,0);
+		if(k!=NULL){
+			cout<<"exist\n";
+		}
+		else{
+			head1=insert(head1,phone);			
+		}
+	}
+	else if(c==2){
+		k=head1;
+		cout<<"input the name you want to search:\n";
+			cin.get();
+			getline(cin,name);	
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				getline(cin,name);
+			}
+					if(k==NULL){
+						cout<<"not found\n";
+					}
+					if(k!=NULL){
+						cout<<"   name"<<"   year"<<"   phone"<<"   home"<<endl;	
+					}
+				while(k!=NULL){
+					k=search(k,name);
+					if(k==NULL){
+						cout<<"not found\n";
+						break;
+					}
+					cout<<setw(7)<<k->readname();
+					cout<<setw(7)<<k->readyear();
+					cout<<setw(8)<<k->readphone();
+					cout<<setw(7)<<k->readhome()<<endl;
+					k=k->readptr();
+					count++;
+				}				
+		}
+	else if(c==3){	
+		count=0;
+		k=head1;
+		cout<<"input the name you want to search:\n";
+			cin.get();
+			getline(cin,name);	
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				getline(cin,name);
+			}
+			if(k==NULL){
+				cout<<"not found\n";
+			}
+			if(k!=NULL){
+				cout<<"   name"<<"   year"<<"   phone"<<"   home"<<endl;	
+			}
+			while(k!=NULL){
+				k=search(k,name);
+				if(k==NULL){
+					cout<<"end\n";
+					break;
+				}
+				cout<<setw(7)<<k->readname();
+				cout<<setw(7)<<k->readyear();
+				cout<<setw(8)<<k->readphone();
+				cout<<setw(7)<<k->readhome()<<endl;
+				k=k->readptr();
+				count++;
+			}
+			k=head1;
+		if(k!=NULL&&count!=0){	
+			cout<<"input phone you want to modify:";
+			getline(cin,phone);	
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				getline(cin,phone);
+			}
+			k=search(k,phone,0);
+				if(k==NULL){
+					cout<<"not found\n";
+				}
+		if(k!=NULL){
+			cout<<"input data you want to modify:(1 for name/2 for year/3 for phone/4 for homephone)\n";			
+			cin>>n;
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				cin>>n;
+			}
+			if(n==1){
+				cout<<"input new name:\n";
+				cin.get();
+				getline(cin,name);
+				while(cin.fail())
+				{
+					cin.clear();
+					cin.sync();
+					cout<<"error input,input again:\n";
+					getline(cin,name);
+				}
+				k->writename(name);
+			}
+			else if(n==2){
+				cout<<"input new year:\n";
+				cin>>year;
+				while(cin.fail())
+				{
+					cin.clear();
+					cin.sync();
+					cout<<"error input,input again:\n";
+					cin>>year;
+				}
+				k->writeyear(year);
+			}
+			else if(n==3){
+				MEMBER *change=k;
+				k=head1;
+				cout<<"input new phone:\n";
+				cin.get();
+				getline(cin,phone);
+				while(cin.fail())
+				{
+					cin.clear();
+					cin.sync();
+					cout<<"error input,input again:\n";
+					getline(cin,phone);
+				}
+				while(k!=NULL){
+					if(phone.compare(k->readphone())==0){
+						cout<<"exist\n";
+						cth=1;
+					}
+					k=k->readptr();					
+				}
+				if(cth!=1)
+					change->writephone(phone);
+					cth=0;				 
+			}
+			else if(n==4){
+				cout<<"input new homephone:\n";
+				cin.get();
+				getline(cin,home);
+				while(cin.fail())
+				{
+					cin.clear();
+					cin.sync();
+					cout<<"error input,input again:\n";
+					getline(cin,home);
+				}
+				k->writehome(home);				
+			}
+			else
+				cout<<"input error\n";
+		}
+		}
+	}
+	else if(c==4){
+		count=0;
+		k=head1;	
+		cout<<"input the name you want to delete:";
+			cin.get();
+			getline(cin,name);	
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				getline(cin,name);
+			}
+			k=search(k,name);
+			if(k==NULL){
+				cout<<"not found\n";
+			}
+			if(k!=NULL){
+				cout<<"   name"<<"   year"<<"   phone"<<"   home"<<endl;	
+			}
+			while(k!=NULL){
+				k=search(k,name);
+				if(k==NULL){
+					cout<<"end\n";
+					break;
+				}
+				cout<<setw(7)<<k->readname();
+				cout<<setw(7)<<k->readyear();
+				cout<<setw(8)<<k->readphone();
+				cout<<setw(7)<<k->readhome()<<endl;
+				k=k->readptr();
+				count++;
+			}
+		if(count!=0){
+			cout<<"input phone you want to delete:\n";
+			getline(cin,phone);	
+			while(cin.fail())
+			{
+				cin.clear();
+				cin.sync();
+				cout<<"error input,input again:\n";
+				getline(cin,phone);
+			}			
+			head1=delete1(head1,phone);			
+		}
+	}
+	else if(c==5){
+	file.open("data.txt",ios_base::out);
+			while(head1!=NULL){
+			file<<head1->readyear();
+			file<<'\n';
+			file<<head1->readname();
+			file<<'\n';
+			file<<head1->readphone();
+			file<<'\n';
+			file<<head1->readhome();
+			file<<'\n';
+			head1=head1->readptr();
+		}		
+		break;
+	
+	}
+	else
+		cout<<"error\n";
+		
+		cout<<"********************************************\n";
+}
+		file.close();
+}
