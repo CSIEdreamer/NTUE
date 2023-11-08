@@ -1,0 +1,386 @@
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <string>
+using namespace std;
+#define  age  0
+#define  income  1
+#define  student  2
+#define  credit  3
+#define  buy  4
+
+
+class node{
+	public:
+		int nodeclass;//節點young.middle.senior分類 
+		int **data;//節點資料 
+		string nodename;//選擇的節點分類 
+		node *childptr;
+		node *levelptr;//同level指標
+		
+	public:
+		node(){
+			nodeclass=-1;
+			data=NULL;
+			nodename="";
+			childptr=NULL;
+			levelptr=NULL;
+		}		
+};
+
+int usedattr[5]={0},count[3]={0},clas[3]={0};
+
+
+
+node *realroot=NULL;
+
+
+
+int attribute(int height,int width,int **data,int (*count)[3],int (*clas)[3]){//計算每個attribute的info值 
+	double infoD,infolargest=0,temp=0;
+	int attr,choose[3]={0};
+	
+	for(int i=1;i<height;i++){//準備計算infoD 
+		if(data[i][width-1]==1){
+			count[0][0]++;
+		}
+	}
+	infoD = -((double)count[0][0]/(height-1))*log2((double)count[0][0]/(height-1))-((double)(height-1-count[0][0])/(height-1))*log2((double)(height-1-count[0][0])/(height-1));
+	cout<<infoD<<endl;
+	count[0][0]=0;
+	for(int i=0;i<width-1;i++){
+		
+		for(int j=1;j<height;j++){//求attribute每分類數量 
+			if(data[j][i]==0){
+				clas[i][0]++;
+			}
+			else if(data[j][i]==1){
+				clas[i][1]++;
+			}
+			else if(data[j][i]==2){
+				clas[i][2]++;
+			}
+		}
+		cout<<clas[i][0]<<"  "<<clas[i][1]<<"  "<<clas[i][2]<<endl;
+		for(int j=1;j<height;j++){//求每分類各自no,yes數量 
+			if(data[j][i]==0&&data[j][width-1]==1){
+				count[i][0]++;
+			}
+			else if(data[j][i]==1&&data[j][width-1]==1){
+				count[i][1]++;
+			}
+			else if(data[j][i]==2&&data[j][width-1]==1){
+				count[i][2]++;
+			}
+		}
+		cout<<count[i][0]<<"  "<<count[i][1]<<"  "<<count[i][2]<<endl;
+		for(int k=0;k<3;k++){//計算各分類info值 
+			if(clas[i][k]==0)
+				continue;
+			else if(count[i][k]==0||(clas[i][k]-count[i][k])==0)
+				temp+=0;
+			else
+				temp += ((double)clas[i][k]/(height-1))*(-((double)count[i][k]/clas[i][k])*log2((double)count[i][k]/clas[i][k])-((double)(clas[i][k]-count[i][k])/clas[i][k])*log2((double)(clas[i][k]-count[i][k])/clas[i][k]));			
+				cout<<temp<<endl;
+		}
+		temp = infoD - temp;
+				if(temp>infolargest){//取info大者 
+					infolargest=temp;
+						attr=data[0][i];
+						clas[0][0] = clas[i][0];
+						clas[0][1] = clas[i][1];
+						clas[0][2] = clas[i][2];		
+				}
+					
+					temp=0;
+
+	}
+	cout<<attr;
+
+	return attr;	
+}
+
+
+
+
+
+
+
+void tree(int height,int width,int **data,node *ptr,int q,int yms){
+	int attr,split[3],count[4][3]={0},clas[4][3]={0};//yms用來存取同一類資料分幾種(young,middle,senior) 
+	node *NODE;
+	int y=0;
+
+
+
+
+	if(ptr==NULL){
+		NODE = new node;
+		NODE->levelptr = NULL; 
+		realroot = NODE;
+		ptr = NODE;
+		NODE->data=data;
+		attr = attribute(height,width,data,count,clas);
+			switch(attr){
+				case 0:
+					NODE->nodename="age";
+					break;	
+				case 1:
+					NODE->nodename="income";
+					break;	
+				case 2:
+					NODE->nodename="student";
+					break;	
+				case 3:
+					NODE->nodename="credit";
+					break;
+				default:
+					cout<<"error";
+					break;	
+			}	
+		cout<<NODE->nodename;
+		for(int i=0;i<3;i++){
+			if(clas[0][i]!=0)
+				yms=i+1;//計算分幾類  for迴圈幾回 
+		}
+		cout<<yms;
+					
+		for(int i=0;i<yms;i++){//3
+			
+			
+			int **datatree = (int**)malloc((clas[0][i]+1)*sizeof(int*));//準備切割資料的空間 
+			for (int l = 0; l < clas[0][i]+1; l++) 
+				datatree[l] = (int*)malloc((width-1)*sizeof(int));
+				 int m=0,n=1;
+			for(int f=0;f<width;f++){// 傳表格的分類 
+				if(data[0][f]!=attr){
+					datatree[0][m] = data[0][f];
+					m++;
+				}
+			}
+			m=0;	 
+			for(int j=1;j<height;j++){//傳表格的資料 
+				for(int k=0;k<width;k++){
+					if(k!=attr){
+						if(data[j][attr]==i){
+
+							datatree[n][m] = data[j][k];
+							m++;
+							if(m==width-1)
+								n++;							
+						}
+					}
+				}
+
+				m=0;
+			}
+			n=0;
+			cout<<endl;
+			cout<<"--------------------------------------------"<<endl;
+					for(int p=0;p<clas[0][i]+1;p++){
+						for(int j=0;j<width-1;j++){
+							cout<<setw(2)<<datatree[p][j];
+						}
+						cout<<endl;
+					}
+			
+			tree(clas[0][i]+1,width-1,datatree,NODE,i,yms);
+			if(i==0)
+				NODE = NODE->childptr;
+			if(i!=0)
+				NODE = NODE->levelptr;
+		}
+	}
+
+
+
+	else if(ptr!=NULL){
+		NODE = new node;
+		if(q==0)
+			ptr->childptr = NODE;
+		else{
+			ptr->levelptr = NODE;
+			y++;			
+		}
+			
+
+		NODE->data=data;
+		if(q==yms-1)
+			NODE->levelptr = NULL;	
+		int t=0;
+			if(width!=1){
+				for(int v=1;v<height-1;v++){
+					if(data[v][width-1]!=data[v+1][width-1]){
+						t=1;
+					}
+				}				
+			}
+
+	switch(t){
+		case 0:
+			if(data[1][width-1]==0){//判斷是否都yes或no或沒attribute 
+				NODE->nodename = "no";
+				cout<<NODE->nodename;
+				NODE->childptr = NULL;
+				NODE->levelptr = NULL;
+				break;
+			}
+			else if(data[1][width-1]==1){//判斷是否都yes或no或沒attribute  
+				NODE->nodename = "yes";
+				cout<<NODE->nodename;
+				NODE->childptr = NULL;
+				NODE->levelptr = NULL;
+				
+			}
+			break;			
+		
+		default:
+		attr = attribute(height,width,data,count,clas);
+			switch(attr){
+				case 0:
+					NODE->nodename="age";
+					break;	
+				case 1:
+					NODE->nodename="income";
+					break;	
+				case 2:
+					NODE->nodename="student";
+					break;	
+				case 3:
+					NODE->nodename="credit";
+					break;
+				default:
+					cout<<"error";
+					break;	
+			}	
+		cout<<NODE->nodename;
+		for(int i=0;i<3;i++){
+			if(clas[0][i]!=0)
+				yms=i+1;
+		}
+		cout<<yms;
+					
+		for(int i=0;i<yms;i++){//3
+
+			int **datatree = (int**)malloc((clas[0][i]+1)*sizeof(int*));//傳切割資料 
+			for (int l = 0; l < clas[0][i]+1; l++) 
+				datatree[l] = (int*)malloc((width-1)*sizeof(int));
+				 int m=0,n=1;
+			for(int f=0;f<width;f++){
+				if(data[0][f]!=attr){
+					datatree[0][m] = data[0][f];
+					m++;
+				}
+			}
+			m=0;
+			int c;
+			for(int h=0;h<width;h++){
+				if(data[0][h]==attr)
+					c = h;
+			}	 
+			for(int j=1;j<height;j++){
+				for(int k=0;k<width;k++){
+					if(data[0][k]!=attr){
+						if(data[j][c]==i){
+
+							datatree[n][m] = data[j][k];
+							m++;
+							if(m==width-1)
+								n++;							
+						}
+					}
+				}
+
+				m=0;
+			}
+			n=0;
+cout<<endl;	
+
+		cout<<"--------------------------------------------"<<endl;
+					for(int p=0;p<clas[0][i]+1;p++){
+						for(int j=0;j<width-1;j++){
+							cout<<setw(2)<<datatree[p][j];
+						}
+						cout<<endl;
+					}
+
+
+				
+			tree(clas[0][i]+1,width-1,datatree,NODE,i,yms);
+			if(i==0)
+				NODE = NODE->childptr;
+			if(i!=0)
+				NODE = NODE->levelptr;
+		}//for(3)
+		break;
+	}//switch
+}//ptr!=NULL
+}//tree
+
+
+
+void preorder(node *root){
+		if(root!=NULL){	
+			cout<<root->nodename<<endl;
+			preorder(root->childptr);
+			preorder(root->levelptr);		
+		}
+}
+
+
+void postorder(node *root){
+		if(root!=NULL){	
+			
+			postorder(root->childptr);
+			cout<<root->nodename<<endl;
+			postorder(root->levelptr);
+		
+		}
+}
+
+
+
+int main(){
+	fstream file;
+	file.open("decisiontree.txt",ios_base::in);
+	int **data = (int**)malloc(15*sizeof(int*));//傳切割資料 
+		for (int l = 0; l < 15; l++) 
+				data[l] = (int*)malloc(5*sizeof(int));
+	
+	if(file.is_open()){            //抓檔 
+	cout<<"open sucessed\n";
+	int i=0,j=0;		
+	while(file>>data[i][j]){
+		file.get();
+		file>>data[i][j+1];
+		file.get();
+		file>>data[i][j+2];
+		file.get();
+		file>>data[i][j+3];
+		file.get();
+		file>>data[i][j+4];
+		file.get();
+		i++;
+	}
+}
+else{
+	cout<<"open failed\n";
+}
+					for(int p=0;p<15;p++){
+						for(int j=0;j<5;j++){
+							cout<<setw(2)<<data[p][j];
+						}
+						cout<<endl;
+					}
+	node *sub;
+	sub = NULL;
+	tree(15,5,data,sub,0,0);
+	
+cout<<endl<<"----------------------------preorder------------------------------"<<endl;	
+		preorder(realroot);
+cout<<endl<<"----------------------------postorder------------------------------"<<endl;
+		postorder(realroot);
+
+}
